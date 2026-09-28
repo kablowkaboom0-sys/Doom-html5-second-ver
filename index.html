@@ -52,13 +52,15 @@ input.addEventListener('change', async () => {
   try {
     const buffer=await file.arrayBuffer();
     const romData=new Uint8Array(buffer);
+    const romBlob=new Blob([romData], {type:'application/octet-stream'});
+    const romUrl=URL.createObjectURL(romBlob);
 
     // EmulatorJS accepts Uint8Array/ArrayBuffer ROM data.
     // Keep initialization in the same order as the official demo.
     window.EJS_player='#game';
     window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
     window.EJS_biosUrl='';
-    window.EJS_gameUrl=romData;
+    window.EJS_gameUrl=romUrl;
     window.EJS_core='gba';
     window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';
     window.EJS_startOnLoaded=true;
@@ -69,6 +71,7 @@ input.addEventListener('change', async () => {
     window.EJS_disableLocalStorage=true;
     window.EJS_CacheLimit=0;
     window.EJS_Buttons={cacheManager:false};
+    window.EJS_hideSettings=true;
     window.EJS_controlScheme='gba';
     window.EJS_browserMode='mobile';
 
