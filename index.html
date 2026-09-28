@@ -56,6 +56,11 @@ input.addEventListener('change', async ()=>{
   try{
     const buffer=await file.arrayBuffer();
     const romBlob=new Blob([buffer],{type:'application/octet-stream'});
+    const bytes=new Uint8Array(buffer);
+    let binary='';
+    const chunk=0x8000;
+    for(let i=0;i<bytes.length;i+=chunk){binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));}
+    const romDataUrl='data:application/octet-stream;base64,'+btoa(binary);
 
     if(romBlobUrl) URL.revokeObjectURL(romBlobUrl);
     romBlobUrl=URL.createObjectURL(romBlob);
@@ -66,9 +71,10 @@ input.addEventListener('change', async ()=>{
     window.EJS_core='gba';
     window.EJS_controlScheme='gba';
     window.EJS_browserMode='mobile';
-    window.EJS_gameUrl=romBlobUrl;
+    window.EJS_biosUrl='';
+    window.EJS_gameUrl=romDataUrl;
     window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/latest/data/';
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.3/data/';
     window.EJS_startOnLoaded=true;
     window.EJS_askBeforeExit=false;
     window.EJS_forceLegacyCores=false;
