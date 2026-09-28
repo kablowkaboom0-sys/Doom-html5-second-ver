@@ -35,10 +35,11 @@ The selected ROM stays in your browser and is not uploaded by this page.
 <script>
 const input=document.getElementById('rom');
 const statusEl=document.getElementById('status');
+let romBlobUrl=null;
 
 function setStatus(message){ statusEl.textContent=message; }
 
-input.addEventListener('change', async () => {
+input.addEventListener('change', async ()=>{
   const file=input.files && input.files[0];
   if(!file) return;
 
@@ -49,30 +50,29 @@ input.addEventListener('change', async () => {
 
   setStatus('Reading ROM…');
 
-  try {
+  try{
     const buffer=await file.arrayBuffer();
-    const romData=new Uint8Array(buffer);
-    const romBlob=new Blob([romData], {type:'application/octet-stream'});
-    const romUrl=URL.createObjectURL(romBlob);
+    const romBlob=new Blob([buffer],{type:'application/octet-stream'});
 
-    // EmulatorJS accepts Uint8Array/ArrayBuffer ROM data.
-    // Keep initialization in the same order as the official demo.
+    if(romBlobUrl) URL.revokeObjectURL(romBlobUrl);
+    romBlobUrl=URL.createObjectURL(romBlob);
+
+    document.getElementById('game').innerHTML='';
+
     window.EJS_player='#game';
-    window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
-    window.EJS_biosUrl='';
-    window.EJS_gameUrl=romUrl;
     window.EJS_core='gba';
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.0/data/';
+    window.EJS_controlScheme='gba';
+    window.EJS_browserMode='mobile';
+    window.EJS_gameUrl=romBlobUrl;
+    window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/latest/data/';
     window.EJS_startOnLoaded=true;
     window.EJS_askBeforeExit=false;
-    window.EJS_threads=false;
-    window.EJS_DEBUG_XX=false;
+    window.EJS_forceLegacyCores=false;
 
-    window.EJS_controlScheme='gba';
-    window.EJS_startOnLoaded=true;
-    window.EJS_hideSettings=true;
-    window.EJS_browserMode='mobile';
-
+    // Keep the keyboard mapping explicit. The on-screen controls are now
+    // provided by EmulatorJS's built-in GBA scheme instead of custom
+    // positioning, which avoids the misplaced touch buttons seen on mobile.
     window.EJS_defaultControls={
       0:{
         0:{value:'x',value2:'BUTTON_2'},
@@ -90,29 +90,32 @@ input.addEventListener('change', async () => {
       }
     };
 
-    document.getElementById('game').innerHTML='';
-    setStatus('Starting game…');
+    // Do not define EJS_VirtualGamepadSettings here.
+    // EmulatorJS will use its native GBA touch layout.
 
     const oldLoader=document.querySelector('script[data-ejs-loader]');
     if(oldLoader) oldLoader.remove();
 
     const loader=document.createElement('script');
-    loader.src='https://cdn.emulatorjs.org/4.2.0/data/loader.js';
+    loader.src='https://cdn.emulatorjs.org/latest/data/loader.js';
     loader.dataset.ejsLoader='true';
-    loader.onload=()=>setStatus('Emulator loaded. Starting game…');
-    loader.onerror=()=>setStatus('Could not load EmulatorJS. Please check the connection.');
+
+    loader.onload=()=>{
+      setStatus('Emulator loaded. Starting game…');
+    };
+
+    loader.onerror=()=>{
+      setStatus('EmulatorJS failed to load. Check your internet connection.');
+    };
+
     document.body.appendChild(loader);
-  } catch(error) {
+  }catch(error){
     setStatus('Could not read the ROM: '+(error.message||error));
   }
 });
 
 window.addEventListener('error',(event)=>{
-  if(event.message && event.message!=='Script error.') {
-    setStatus('Emulator error: '+event.message);
-  } else if(event.message==='Script error.') {
-    setStatus('Emulator script error. The emulator failed to initialize.');
-  }
+  if(event.message) setStatus('Emulator error: '+event.message);
 });
 
 document.getElementById('fullscreen').onclick=()=>{
