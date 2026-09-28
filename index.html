@@ -65,10 +65,13 @@ input.addEventListener('change', async ()=>{
     window.EJS_browserMode='mobile';
     window.EJS_gameUrl=romBlobUrl;
     window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/latest/data/';
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.3/data/';
     window.EJS_startOnLoaded=true;
     window.EJS_askBeforeExit=false;
     window.EJS_forceLegacyCores=false;
+    window.EJS_DEBUG_XX=true;
+    window.EJS_hideSettings=true;
+    window.EJS_disableAutoLang=true;
 
     // Keep the keyboard mapping explicit. The on-screen controls are now
     // provided by EmulatorJS's built-in GBA scheme instead of custom
@@ -97,7 +100,7 @@ input.addEventListener('change', async ()=>{
     if(oldLoader) oldLoader.remove();
 
     const loader=document.createElement('script');
-    loader.src='https://cdn.emulatorjs.org/latest/data/loader.js';
+    loader.src='https://cdn.emulatorjs.org/4.2.3/data/loader.js';
     loader.dataset.ejsLoader='true';
 
     loader.onload=()=>{
