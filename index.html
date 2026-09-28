@@ -14,15 +14,8 @@ button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border
 #status{font-size:13px;color:#aeb9c9}#game{width:100%;height:min(78vh,720px);min-height:480px;background:#000;border-radius:10px;overflow:hidden}
 .hint{margin-top:12px;color:#8f9bad;font-size:12px;line-height:1.5}
 
-#manualPad{position:absolute;inset:0;z-index:100000;pointer-events:none}
-.mp{position:absolute;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;background:rgba(30,35,45,.88);color:white;border:2px solid rgba(255,255,255,.7);font:bold 20px system-ui;border-radius:14px;display:flex;align-items:center;justify-content:center;width:58px;height:58px}
-.mp:active{background:rgba(255,255,255,.8);color:#111}
-.mp-up{left:58px;bottom:122px}.mp-down{left:58px;bottom:10px}.mp-left{left:0;bottom:66px}.mp-right{left:116px;bottom:66px}
-.mp-a{right:18px;bottom:38px;border-radius:50%;width:72px;height:72px}.mp-b{right:100px;bottom:82px;border-radius:50%;width:62px;height:62px}
-.mp-l{left:18px;top:12px}.mp-r{right:18px;top:12px}
-.mp-start{right:50%;bottom:12px;width:64px;height:38px;font-size:12px}.mp-select{right:50%;bottom:58px;width:64px;height:38px;font-size:12px}
-@media(max-width:600px){.mp{transform:scale(.9)}.mp-a{right:12px}.mp-b{right:88px}}
-#touchOverlay{position:absolute;inset:0;z-index:99999;pointer-events:none}.touchBtn{position:absolute;pointer-events:auto;width:58px;height:58px;border:2px solid #fff;border-radius:14px;background:rgba(30,30,35,.82);color:#fff;font:bold 20px sans-serif;touch-action:none}.touchBtn:active{background:#fff;color:#111}.tu{left:60px;bottom:120px}.td{left:60px;bottom:8px}.tl{left:2px;bottom:64px}.tr{left:118px;bottom:64px}.ta{right:18px;bottom:35px;width:72px;height:72px;border-radius:50%}.tb{right:100px;bottom:78px;border-radius:50%}.tlb{left:18px;top:14px}.trb{right:18px;top:14px}@media(max-width:600px){.touchBtn{transform:scale(.9)}}</style>
+#touchOverlay{position:absolute;inset:0;z-index:99999;pointer-events:none}.touchBtn{position:absolute;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;background:rgba(30,30,35,.82);color:#fff;border:2px solid rgba(255,255,255,.7);font:bold 20px sans-serif;border-radius:14px;width:58px;height:58px}.tu{left:58px;bottom:122px}.td{left:58px;bottom:8px}.tl{left:0;bottom:66px}.tr{left:116px;bottom:66px}.ta{right:18px;bottom:30px;width:72px;height:72px;border-radius:50%}.tb{right:104px;bottom:76px;border-radius:50%}.tlb{left:18px;top:12px}.trb{right:18px;top:12px}
+</style>
 </head>
 <body>
 <header><h1>GBA Web Player</h1><p class="sub">Browser-based Game Boy Advance emulator</p></header>
@@ -44,32 +37,10 @@ The selected ROM stays in your browser and is not uploaded by this page.
 <script>
 const input=document.getElementById('rom');
 const statusEl=document.getElementById('status');
+let romBlobUrl=null;
 
 function setStatus(message){ statusEl.textContent=message; }
-function createTouchOverlay(){
- if(document.getElementById('touchOverlay')) return;
- const o=document.createElement('div');o.id='touchOverlay';
- o.innerHTML='<button class="touchBtn tu" data-key="ArrowUp">▲</button><button class="touchBtn td" data-key="ArrowDown">▼</button><button class="touchBtn tl" data-key="ArrowLeft">◀</button><button class="touchBtn tr" data-key="ArrowRight">▶</button><button class="touchBtn ta" data-key="z">A</button><button class="touchBtn tb" data-key="x">B</button><button class="touchBtn tlb" data-key="q">L</button><button class="touchBtn trb" data-key="w">R</button>';
- document.getElementById('game').appendChild(o);
- o.querySelectorAll('[data-key]').forEach(b=>{
-  const k=b.dataset.key;
-  b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);b.style.opacity='.55';document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}))});
-  const up=e=>{e.preventDefault();b.style.opacity='1';document.dispatchEvent(new KeyboardEvent('keyup',{key:k,bubbles:true}))};
-  b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);
- });
-}
-
-function revealTouchControls(){
-  document.querySelectorAll(
-    '.ejs_virtualGamepad,.ejs_virtualGamepad_left,.ejs_virtualGamepad_right,'+
-    '[class*="virtualGamepad"],[class*="virtualgamepad"]'
-  ).forEach(el=>{
-    el.style.setProperty('display','block','important');
-    el.style.setProperty('visibility','visible','important');
-    el.style.setProperty('opacity','1','important');
-    el.style.setProperty('pointer-events','auto','important');
-  });
-}
+function createTouchOverlay(){if(document.getElementById('touchOverlay'))return;const o=document.createElement('div');o.id='touchOverlay';o.innerHTML='<button class="touchBtn tu" data-key="ArrowUp">▲</button><button class="touchBtn td" data-key="ArrowDown">▼</button><button class="touchBtn tl" data-key="ArrowLeft">◀</button><button class="touchBtn tr" data-key="ArrowRight">▶</button><button class="touchBtn ta" data-key="z">A</button><button class="touchBtn tb" data-key="x">B</button><button class="touchBtn tlb" data-key="q">L</button><button class="touchBtn trb" data-key="w">R</button>';document.getElementById('game').appendChild(o);o.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;const send=(type,e)=>{e.preventDefault();window.dispatchEvent(new KeyboardEvent(type,{key:k,code:k.startsWith('Arrow')?k:k.toUpperCase(),bubbles:true}));};b.addEventListener('pointerdown',e=>send('keydown',e));b.addEventListener('pointerup',e=>send('keyup',e));b.addEventListener('pointercancel',e=>send('keyup',e));});}
 
 input.addEventListener('change', async ()=>{
   const file=input.files && input.files[0];
@@ -84,22 +55,27 @@ input.addEventListener('change', async ()=>{
 
   try{
     const buffer=await file.arrayBuffer();
-    const romBlob=new Blob([new Uint8Array(buffer)],{type:'application/octet-stream'});
+    const romBlob=new Blob([buffer],{type:'application/octet-stream'});
+
+    if(romBlobUrl) URL.revokeObjectURL(romBlobUrl);
+    romBlobUrl=URL.createObjectURL(romBlob);
 
     document.getElementById('game').innerHTML='';
 
     window.EJS_player='#game';
     window.EJS_core='gba';
-    window.EJS_controlScheme='gba';window.EJS_VirtualGamepadSettings=[
-{type:"button",text:"B",id:"b",location:"right",left:81,top:40,bold:true,input_value:8},
-{type:"button",text:"A",id:"a",location:"right",left:40,top:80,bold:true,input_value:0},
-{type:"button",text:"L",id:"l",location:"left",left:8,top:8,bold:true,input_value:10},
-{type:"button",text:"R",id:"r",location:"right",right:8,top:8,bold:true,input_value:11},
-{type:"dpad",location:"left",left:18,right:"auto",top:"auto",joystickInput:false,inputValues:[4,5,6,7]},
-{type:"button",text:"Start",id:"start",location:"center",left:60,fontSize:15,block:true,input_value:3},
-{type:"button",text:"Select",id:"select",location:"center",left:-5,fontSize:15,block:true,input_value:2}
-];
+    window.EJS_controlScheme='gba';
     window.EJS_browserMode='mobile';
+    window.EJS_gameUrl=romBlobUrl;
+    window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/latest/data/';
+    window.EJS_startOnLoaded=true;
+    window.EJS_askBeforeExit=false;
+    window.EJS_forceLegacyCores=false;
+
+    // Keep the keyboard mapping explicit. The on-screen controls are now
+    // provided by EmulatorJS's built-in GBA scheme instead of custom
+    // positioning, which avoids the misplaced touch buttons seen on mobile.
     window.EJS_defaultControls={
       0:{
         0:{value:'x',value2:'BUTTON_2'},
@@ -116,24 +92,19 @@ input.addEventListener('change', async ()=>{
         11:{value:'w',value2:'BUTTON_6'}
       }
     };
-    window.EJS_gameUrl=romBlob;
-    window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.3/data/';
-    window.EJS_startOnLoaded=true;
-    window.EJS_disableAutoLang=true;
-    window.EJS_askBeforeExit=false;
-    window.EJS_DEBUG_XX=true;
+
+    // Do not define EJS_VirtualGamepadSettings here.
+    // EmulatorJS will use its native GBA touch layout.
 
     const oldLoader=document.querySelector('script[data-ejs-loader]');
     if(oldLoader) oldLoader.remove();
 
     const loader=document.createElement('script');
-    loader.src='https://cdn.emulatorjs.org/4.2.3/data/loader.js';
+    loader.src='https://cdn.emulatorjs.org/latest/data/loader.js';
     loader.dataset.ejsLoader='true';
 
-    loader.onload=()=>{setTimeout(createTouchOverlay,1000);
+    loader.onload=()=>{setTimeout(createTouchOverlay,1200);
       setStatus('Emulator loaded. Starting game…');
-      [500,1500,3000,5000].forEach(ms=>setTimeout(revealTouchControls,ms));
     };
 
     loader.onerror=()=>{
