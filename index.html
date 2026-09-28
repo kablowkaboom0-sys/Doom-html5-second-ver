@@ -26,7 +26,11 @@ button:hover,.file-label:hover{background:#222e42}#status{font-size:13px;color:#
 <span id="status">Choose the GBA file to start.</span>
 </div>
 <div id="game"></div>
-<div class="hint">The selected ROM stays in your browser and is not uploaded by this page. Keyboard controls are provided by the emulator.</div>
+<div class="hint">
+  <strong>Keyboard:</strong> D-pad = Arrow Keys · A = Z · B = X · L = Q · R = W · Start = Enter · Select = Shift.<br>
+  <strong>Touch:</strong> EmulatorJS shows a GBA virtual gamepad on touch devices.
+  The selected ROM stays in your browser and is not uploaded by this page.
+</div>
 </section></main>
 <script>
 const statusEl=document.getElementById('status'),game=document.getElementById('game'),input=document.getElementById('rom');
@@ -37,6 +41,32 @@ function startEmulator(){
   window.EJS_gameUrl=currentUrl;
   window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';
   window.EJS_startOnLoaded=true;
+  window.EJS_controlScheme='gba';
+  window.EJS_defaultControls={
+    0:{
+      0:{value:'x',value2:'BUTTON_2'},      // B
+      1:{value:'s',value2:'BUTTON_4'},      // Y
+      2:{value:'shift',value2:'SELECT'},    // Select
+      3:{value:'enter',value2:'START'},     // Start
+      4:{value:'up arrow',value2:'DPAD_UP'},
+      5:{value:'down arrow',value2:'DPAD_DOWN'},
+      6:{value:'left arrow',value2:'DPAD_LEFT'},
+      7:{value:'right arrow',value2:'DPAD_RIGHT'},
+      8:{value:'z',value2:'BUTTON_1'},      // A
+      9:{value:'a',value2:'BUTTON_3'},      // X
+      10:{value:'q',value2:'BUTTON_5'},     // L
+      11:{value:'w',value2:'BUTTON_6'}       // R
+    }
+  };
+  window.EJS_VirtualGamepadSettings=[
+    {type:'dpad',location:'left',left:8,top:35,inputValues:[4,5,6,7]},
+    {type:'button',text:'B',id:'b',location:'right',left:5,top:58,bold:true,input_value:0},
+    {type:'button',text:'A',id:'a',location:'right',left:38,top:42,bold:true,input_value:8},
+    {type:'button',text:'SELECT',id:'select',location:'bottom',left:34,bold:true,input_value:2},
+    {type:'button',text:'START',id:'start',location:'bottom',left:56,bold:true,input_value:3},
+    {type:'button',text:'L',id:'l',location:'left',left:8,top:5,bold:true,input_value:10},
+    {type:'button',text:'R',id:'r',location:'right',left:72,top:5,bold:true,input_value:11}
+  ];
   const s=document.createElement('script');
   s.src='https://cdn.emulatorjs.org/stable/data/loader.js';
   s.onload=()=>statusEl.textContent='Emulator loaded.';
