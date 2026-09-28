@@ -52,20 +52,19 @@ input.addEventListener('change', async ()=>{
 
   try{
     const buffer=await file.arrayBuffer();
-    const romBlob=new Blob([buffer],{type:'application/octet-stream'});
-
-    if(romBlobUrl) URL.revokeObjectURL(romBlobUrl);
-    romBlobUrl=URL.createObjectURL(romBlob);
+    const romBlob=new Blob([new Uint8Array(buffer)],{type:'application/octet-stream'});
+    romBlobUrl=null;
 
     document.getElementById('game').innerHTML='';
 
     window.EJS_player='#game';
     window.EJS_core='gba';
     window.EJS_controlScheme='gba';
-    window.EJS_gameUrl=romBlobUrl;
+    window.EJS_gameUrl=romBlob;
     window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
     window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.3/data/';
     window.EJS_startOnLoaded=true;
+    window.EJS_disableAutoLang=true;
     window.EJS_askBeforeExit=false;
     window.EJS_DEBUG_XX=true;
 
