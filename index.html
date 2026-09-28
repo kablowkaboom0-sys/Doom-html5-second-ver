@@ -1,92 +1,56 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-  <title>GBA Web Player</title>
-  <link rel="icon" href="data:,">
-  <style>
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;background:#080a0f;color:#f4f7fb;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
-    body{display:flex;flex-direction:column}
-    header{padding:18px 20px;text-align:center;border-bottom:1px solid #222936;background:#0d1119}
-    h1{margin:0;font-size:22px}
-    .sub{margin:6px 0 0;color:#9da8b8;font-size:13px}
-    main{width:min(1100px,100%);margin:auto;padding:18px}
-    .panel{background:#10151f;border:1px solid #293140;border-radius:14px;padding:16px;box-shadow:0 12px 35px #0006}
-    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
-    input[type=file]{display:none}
-    button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:600}
-    button:hover,.file-label:hover{background:#222e42}
-    #status{font-size:13px;color:#aeb9c9}
-    #game{width:100%;min-height:540px;background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-    #game iframe,#game canvas{max-width:100%}
-    .hint{margin-top:12px;color:#8f9bad;font-size:12px;line-height:1.5}
-    .hidden{display:none}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>GBA Web Player</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#080a0f;color:#f4f7fb;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+body{display:flex;flex-direction:column}header{padding:18px 20px;text-align:center;border-bottom:1px solid #222936;background:#0d1119}
+h1{margin:0;font-size:22px}.sub{margin:6px 0 0;color:#9da8b8;font-size:13px}main{width:min(1100px,100%);margin:auto;padding:18px}
+.panel{background:#10151f;border:1px solid #293140;border-radius:14px;padding:16px;box-shadow:0 12px 35px #0006}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}input[type=file]{display:none}
+button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:600}
+button:hover,.file-label:hover{background:#222e42}#status{font-size:13px;color:#aeb9c9}
+#game{width:100%;min-height:540px;background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hint{margin-top:12px;color:#8f9bad;font-size:12px;line-height:1.5}
+</style>
 </head>
 <body>
-<header>
-  <h1>GBA Web Player</h1>
-  <p class="sub">Browser-based Game Boy Advance emulator</p>
-</header>
-<main>
-  <section class="panel">
-    <div class="controls">
-      <label class="file-label" for="rom">Choose GBA ROM</label>
-      <input id="rom" type="file" accept=".gba,.zip,application/zip,application/octet-stream">
-      <button id="fullscreen" type="button">Fullscreen</button>
-      <span id="status">Choose the GBA file to start.</span>
-    </div>
-    <div id="game"></div>
-    <div class="hint">
-      Your ROM stays in your browser and is not uploaded by this page. Keyboard controls depend on the emulator core.
-      For GitHub Pages, keep this page and the <code>data</code> folder together.
-    </div>
-  </section>
-</main>
+<header><h1>GBA Web Player</h1><p class="sub">Browser-based Game Boy Advance emulator</p></header>
+<main><section class="panel">
+<div class="controls">
+<label class="file-label" for="rom">Choose GBA ROM</label>
+<input id="rom" type="file" accept=".gba,.zip,application/zip,application/octet-stream">
+<button id="fullscreen" type="button">Fullscreen</button>
+<span id="status">Choose the GBA file to start.</span>
+</div>
+<div id="game"></div>
+<div class="hint">The selected ROM stays in your browser and is not uploaded by this page. Keyboard controls are provided by the emulator.</div>
+</section></main>
 <script>
-  const statusEl=document.getElementById('status');
-  const game=document.getElementById('game');
-  const input=document.getElementById('rom');
-  let currentUrl=null;
-  let scriptLoaded=false;
-
-  function loadEmulatorScript(){
-    if(scriptLoaded) return;
-    scriptLoaded=true;
-    const s=document.createElement('script');
-    s.src='https://cdn.emulatorjs.org/stable/data/loader.js';
-    s.onload=()=>statusEl.textContent='Emulator ready. Choose your ROM.';
-    s.onerror=()=>statusEl.textContent='Could not load the emulator library.';
-    document.body.appendChild(s);
-  }
-  loadEmulatorScript();
-
-  input.addEventListener('change',()=>{
-    const file=input.files[0];
-    if(!file) return;
-    if(currentUrl) URL.revokeObjectURL(currentUrl);
-    currentUrl=URL.createObjectURL(file);
-    game.innerHTML='';
-    window.EJS_player='game';
-    window.EJS_core='gba';
-    window.EJS_gameUrl=currentUrl;
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';
-    window.EJS_startOnLoaded=true;
-    statusEl.textContent='Starting '+file.name+'…';
-    const old=document.getElementById('ejs-loader');
-    if(old) old.remove();
-    const s=document.createElement('script');
-    s.id='ejs-loader';
-    s.src='https://cdn.emulatorjs.org/stable/data/loader.js';
-    document.body.appendChild(s);
-  });
-
-  document.getElementById('fullscreen').onclick=()=>{
-    const el=game;
-    if(el.requestFullscreen) el.requestFullscreen();
-  };
+const statusEl=document.getElementById('status'),game=document.getElementById('game'),input=document.getElementById('rom');
+let currentUrl=null;
+function startEmulator(){
+  window.EJS_player='game';
+  window.EJS_core='gba';
+  window.EJS_gameUrl=currentUrl;
+  window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';
+  window.EJS_startOnLoaded=true;
+  const s=document.createElement('script');
+  s.src='https://cdn.emulatorjs.org/stable/data/loader.js';
+  s.onload=()=>statusEl.textContent='Emulator loaded.';
+  s.onerror=()=>statusEl.textContent='Could not load EmulatorJS. Check your internet connection.';
+  document.body.appendChild(s);
+}
+input.addEventListener('change',()=>{
+  const file=input.files[0]; if(!file)return;
+  if(currentUrl)URL.revokeObjectURL(currentUrl);
+  currentUrl=URL.createObjectURL(file);
+  game.innerHTML='';
+  statusEl.textContent='Starting '+file.name+'…';
+  startEmulator();
+});
+document.getElementById('fullscreen').onclick=()=>{if(game.requestFullscreen)game.requestFullscreen()};
 </script>
-</body>
-</html>
+</body></html>
