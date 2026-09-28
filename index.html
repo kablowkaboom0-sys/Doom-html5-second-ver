@@ -56,11 +56,7 @@ input.addEventListener('change', async ()=>{
   try{
     const buffer=await file.arrayBuffer();
     const romBlob=new Blob([buffer],{type:'application/octet-stream'});
-    const bytes=new Uint8Array(buffer);
-    let binary='';
-    const chunk=0x8000;
-    for(let i=0;i<bytes.length;i+=chunk){binary+=String.fromCharCode(...bytes.subarray(i,i+chunk));}
-    const romDataUrl='data:application/octet-stream;base64,'+btoa(binary);
+    
 
     if(romBlobUrl) URL.revokeObjectURL(romBlobUrl);
     romBlobUrl=URL.createObjectURL(romBlob);
@@ -71,10 +67,11 @@ input.addEventListener('change', async ()=>{
     window.EJS_core='gba';
     window.EJS_controlScheme='gba';
     window.EJS_browserMode='mobile';
+    window.EJS_DEBUG_XX=true;
     window.EJS_biosUrl='';
-    window.EJS_gameUrl=romDataUrl;
+    window.EJS_gameUrl=romBlob;
     window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.3/data/';
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';
     window.EJS_startOnLoaded=true;
     window.EJS_askBeforeExit=false;
     window.EJS_forceLegacyCores=false;
@@ -82,22 +79,7 @@ input.addEventListener('change', async ()=>{
     // Keep the keyboard mapping explicit. The on-screen controls are now
     // provided by EmulatorJS's built-in GBA scheme instead of custom
     // positioning, which avoids the misplaced touch buttons seen on mobile.
-    window.EJS_defaultControls={
-      0:{
-        0:{value:'x',value2:'BUTTON_2'},
-        1:{value:'s',value2:'BUTTON_4'},
-        2:{value:'shift',value2:'SELECT'},
-        3:{value:'enter',value2:'START'},
-        4:{value:'up arrow',value2:'DPAD_UP'},
-        5:{value:'down arrow',value2:'DPAD_DOWN'},
-        6:{value:'left arrow',value2:'DPAD_LEFT'},
-        7:{value:'right arrow',value2:'DPAD_RIGHT'},
-        8:{value:'z',value2:'BUTTON_1'},
-        9:{value:'a',value2:'BUTTON_3'},
-        10:{value:'q',value2:'BUTTON_5'},
-        11:{value:'w',value2:'BUTTON_6'}
-      }
-    };
+    
 
     // Do not define EJS_VirtualGamepadSettings here.
     // EmulatorJS will use its native GBA touch layout.
@@ -106,7 +88,7 @@ input.addEventListener('change', async ()=>{
     if(oldLoader) oldLoader.remove();
 
     const loader=document.createElement('script');
-    loader.src='https://cdn.emulatorjs.org/4.2.3/data/loader.js';
+    loader.src='https://cdn.emulatorjs.org/stable/data/loader.js';
     loader.dataset.ejsLoader='true';
 
     loader.onload=()=>{setTimeout(createTouchOverlay,1200);
