@@ -9,7 +9,7 @@
 body{display:flex;flex-direction:column}header{padding:18px 20px;text-align:center;border-bottom:1px solid #222936;background:#0d1119}
 h1{margin:0;font-size:22px}.sub{margin:6px 0 0;color:#9da8b8;font-size:13px}
 main{width:min(1100px,100%);margin:auto;padding:18px}.panel{background:#10151f;border:1px solid #293140;border-radius:14px;padding:16px;box-shadow:0 12px 35px #0006}
-.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}input[type=file]{display:none}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}input[type=file]{display:block;width:100%;max-width:520px;padding:10px;background:#182131;color:#fff;border:1px solid #3a4659;border-radius:9px}
 button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:600}
 #status{font-size:13px;color:#aeb9c9}#game{width:100%;height:min(78vh,720px);min-height:480px;background:#000;border-radius:10px;overflow:hidden}
 .hint{margin-top:12px;color:#8f9bad;font-size:12px;line-height:1.5}
@@ -21,7 +21,6 @@ button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border
 <header><h1>GBA Web Player</h1><p class="sub">Browser-based Game Boy Advance emulator</p></header>
 <main><section class="panel">
 <div class="controls">
-<label class="file-label" for="rom">Choose GBA ROM</label>
 <input id="rom" type="file" accept=".gba,application/octet-stream">
 <button id="fullscreen" type="button">Fullscreen</button>
 <span id="status">Choose the GBA file to start.</span>
@@ -55,7 +54,7 @@ input.addEventListener('change', async ()=>{
   setStatus('Reading ROM…');
 
   try{
-    const buffer=await file.arrayBuffer();
+    const buffer=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('FileReader failed'));r.readAsArrayBuffer(file);});
     const romBlob=new Blob([buffer],{type:'application/octet-stream'});
 
     if(romBlobUrl) URL.revokeObjectURL(romBlobUrl);
