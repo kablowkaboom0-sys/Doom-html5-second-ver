@@ -21,33 +21,60 @@ button:hover,.file-label:hover{background:#222e42}#status{font-size:13px;color:#
 <main><section class="panel">
 <div class="controls">
 <label class="file-label" for="rom">Choose GBA ROM</label>
-<input id="rom" type="file" accept=".gba,.zip,application/zip,application/octet-stream">
+<input id="rom" type="file" accept=".gba">
 <button id="fullscreen" type="button">Fullscreen</button>
 <span id="status">Choose the GBA file to start.</span>
 </div>
 <div id="game"></div>
 <div class="hint">
-  <strong>Keyboard:</strong> D-pad = Arrow Keys · A = Z · B = X · L = Q · R = W · Start = Enter · Select = Shift.<br>
-  <strong>Touch:</strong> EmulatorJS shows a GBA virtual gamepad on touch devices.
-  The selected ROM stays in your browser and is not uploaded by this page.
+<strong>Keyboard:</strong> D-pad = Arrow Keys · A = Z · B = X · L = Q · R = W · Start = Enter · Select = Shift.<br>
+<strong>Touch:</strong> EmulatorJS provides virtual GBA controls on supported touch devices.<br>
+The selected ROM stays in your browser and is not uploaded by this page.
 </div>
 </section></main>
-<script>
-const statusEl=document.getElementById('status');
-const game=document.getElementById('game');
-const input=document.getElementById('rom');
-let emulatorScriptLoaded=false;
 
-function startEmulator(file){
-  // EmulatorJS's own file-upload demo passes the File object directly.
-  // This avoids Blob URL issues on some mobile browsers.
+<script>
+const input=document.getElementById('rom');
+const statusEl=document.getElementById('status');
+const panel=document.querySelector('.panel');
+let running=false;
+
+input.addEventListener('change', async () => {
+  const file=input.files && input.files[0];
+  if(!file) return;
+
+  if(!file.name.toLowerCase().endsWith('.gba')){
+    statusEl.textContent='Please choose a .gba file.';
+    return;
+  }
+
+  statusEl.textContent='Starting '+file.name+'…';
+  running=true;
+
+  // Follow EmulatorJS's official upload flow: use the File object directly
+  // and create the emulator container immediately before loading loader.js.
+  const oldGame=document.getElementById('game');
+  if(oldGame) oldGame.remove();
+
+  const game=document.createElement('div');
+  game.id='game';
+  game.style.width='100%';
+  game.style.height='min(80vh,720px)';
+  game.style.minHeight='540px';
+  game.style.background='#000';
+  game.style.borderRadius='10px';
+  game.style.overflow='hidden';
+
+  const controls=document.querySelector('.controls');
+  controls.insertAdjacentElement('afterend',game);
+
   window.EJS_player='#game';
   window.EJS_core='gba';
   window.EJS_gameUrl=file;
   window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
   window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';
   window.EJS_startOnLoaded=true;
-  window.EJS_controlScheme='gba';
+  window.EJS_askBeforeExit=false;
 
   window.EJS_defaultControls={
     0:{
@@ -66,6 +93,7 @@ function startEmulator(file){
     }
   };
 
+  // Match EmulatorJS mobile behavior rather than manually drawing a gamepad.
   window.EJS_VirtualGamepadSettings=[
     {type:'dpad',location:'left',left:8,top:35,inputValues:[4,5,6,7]},
     {type:'button',text:'B',id:'b',location:'right',left:5,top:58,bold:true,input_value:0},
@@ -76,39 +104,21 @@ function startEmulator(file){
     {type:'button',text:'R',id:'r',location:'right',left:72,top:5,bold:true,input_value:11}
   ];
 
-  statusEl.textContent='Loading '+file.name+'…';
+  // Prevent duplicate loader.js instances if the user selects again.
+  const existing=document.querySelector('script[data-emulatorjs-loader]');
+  if(existing) existing.remove();
 
-  if(emulatorScriptLoaded){
-    // A page refresh is the most reliable way to reinitialize EmulatorJS
-    // after a ROM has already been loaded.
-    location.reload();
-    return;
-  }
-
-  const s=document.createElement('script');
-  s.src='https://cdn.emulatorjs.org/stable/data/loader.js';
-  s.onload=()=>{
-    emulatorScriptLoaded=true;
-    statusEl.textContent='Emulator started. Loading ROM…';
-  };
-  s.onerror=()=>{
-    statusEl.textContent='Could not load EmulatorJS. Check your internet connection.';
-  };
-  document.body.appendChild(s);
-}
-
-input.addEventListener('change',()=>{
-  const file=input.files[0];
-  if(!file)return;
-  if(!file.name.toLowerCase().endsWith('.gba')){
-    statusEl.textContent='Please choose a .gba ROM file.';
-    return;
-  }
-  startEmulator(file);
+  const script=document.createElement('script');
+  script.src='https://cdn.emulatorjs.org/stable/data/loader.js';
+  script.dataset.emulatorjsLoader='true';
+  script.onload=()=>{ statusEl.textContent='Emulator loaded. Starting game…'; };
+  script.onerror=()=>{ statusEl.textContent='EmulatorJS failed to load. Check your internet connection.'; };
+  document.body.appendChild(script);
 });
 
 document.getElementById('fullscreen').onclick=()=>{
-  if(game.requestFullscreen)game.requestFullscreen();
+  const game=document.getElementById('game');
+  if(game && game.requestFullscreen) game.requestFullscreen();
 };
 </script>
 </body>
