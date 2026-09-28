@@ -65,7 +65,7 @@ input.addEventListener('change', async ()=>{
     window.EJS_browserMode='mobile';
     window.EJS_gameUrl=romBlobUrl;
     window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/latest/data/';
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';
     window.EJS_startOnLoaded=true;
     window.EJS_askBeforeExit=false;
     window.EJS_forceLegacyCores=false;
@@ -97,7 +97,7 @@ input.addEventListener('change', async ()=>{
     if(oldLoader) oldLoader.remove();
 
     const loader=document.createElement('script');
-    loader.src='https://cdn.emulatorjs.org/latest/data/loader.js';
+    loader.src='https://cdn.emulatorjs.org/stable/data/loader.js';
     loader.dataset.ejsLoader='true';
 
     loader.onload=()=>{
