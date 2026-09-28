@@ -13,7 +13,7 @@ main{width:min(1100px,100%);margin:auto;padding:18px}.panel{background:#10151f;b
 button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:600}
 #status{font-size:13px;color:#aeb9c9}#game{width:100%;height:min(78vh,720px);min-height:480px;background:#000;border-radius:10px;overflow:hidden}
 .hint{margin-top:12px;color:#8f9bad;font-size:12px;line-height:1.5}
- #game .ejs_virtualGamepad,#game .ejs_virtualGamepad_left,#game .ejs_virtualGamepad_right{display:none!important;}\n</style>
+</style>
 </head>
 <body>
 <header><h1>GBA Web Player</h1><p class="sub">Browser-based Game Boy Advance emulator</p></header>
@@ -35,9 +35,20 @@ The selected ROM stays in your browser and is not uploaded by this page.
 <script>
 const input=document.getElementById('rom');
 const statusEl=document.getElementById('status');
-let romBlobUrl=null;
 
 function setStatus(message){ statusEl.textContent=message; }
+
+function revealTouchControls(){
+  document.querySelectorAll(
+    '.ejs_virtualGamepad,.ejs_virtualGamepad_left,.ejs_virtualGamepad_right,'+
+    '[class*="virtualGamepad"],[class*="virtualgamepad"]'
+  ).forEach(el=>{
+    el.style.setProperty('display','block','important');
+    el.style.setProperty('visibility','visible','important');
+    el.style.setProperty('opacity','1','important');
+    el.style.setProperty('pointer-events','auto','important');
+  });
+}
 
 input.addEventListener('change', async ()=>{
   const file=input.files && input.files[0];
@@ -53,7 +64,6 @@ input.addEventListener('change', async ()=>{
   try{
     const buffer=await file.arrayBuffer();
     const romBlob=new Blob([new Uint8Array(buffer)],{type:'application/octet-stream'});
-    romBlobUrl=null;
 
     document.getElementById('game').innerHTML='';
 
@@ -94,6 +104,7 @@ input.addEventListener('change', async ()=>{
 
     loader.onload=()=>{
       setStatus('Emulator loaded. Starting game…');
+      [500,1500,3000,5000].forEach(ms=>setTimeout(revealTouchControls,ms));
     };
 
     loader.onerror=()=>{
