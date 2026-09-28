@@ -13,7 +13,9 @@ main{width:min(1100px,100%);margin:auto;padding:18px}.panel{background:#10151f;b
 button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:600}
 #status{font-size:13px;color:#aeb9c9}#game{width:100%;height:min(78vh,720px);min-height:480px;background:#000;border-radius:10px;overflow:hidden}
 .hint{margin-top:12px;color:#8f9bad;font-size:12px;line-height:1.5}
-\n#touchOverlay{position:absolute;inset:0;z-index:99999;pointer-events:none}.touchBtn{position:absolute;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;background:rgba(30,30,35,.82);color:#fff;border:2px solid rgba(255,255,255,.7);font:bold 20px sans-serif;border-radius:14px;width:58px;height:58px}.tu{left:58px;bottom:122px}.td{left:58px;bottom:8px}.tl{left:0;bottom:66px}.tr{left:116px;bottom:66px}.ta{right:18px;bottom:30px;width:72px;height:72px;border-radius:50%}.tb{right:104px;bottom:76px;border-radius:50%}.tlb{left:18px;top:12px}.trb{right:18px;top:12px}\n</style>
+
+#touchOverlay{position:absolute;inset:0;z-index:99999;pointer-events:none}.touchBtn{position:absolute;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;background:rgba(30,30,35,.82);color:#fff;border:2px solid rgba(255,255,255,.7);font:bold 20px sans-serif;border-radius:14px;width:58px;height:58px}.tu{left:58px;bottom:122px}.td{left:58px;bottom:8px}.tl{left:0;bottom:66px}.tr{left:116px;bottom:66px}.ta{right:18px;bottom:30px;width:72px;height:72px;border-radius:50%}.tb{right:104px;bottom:76px;border-radius:50%}.tlb{left:18px;top:12px}.trb{right:18px;top:12px}
+</style>
 </head>
 <body>
 <header><h1>GBA Web Player</h1><p class="sub">Browser-based Game Boy Advance emulator</p></header>
@@ -37,7 +39,9 @@ const input=document.getElementById('rom');
 const statusEl=document.getElementById('status');
 let romBlobUrl=null;
 
-function setStatus(message){ statusEl.textContent=message; }\nfunction createTouchOverlay(){if(document.getElementById('touchOverlay'))return;const o=document.createElement('div');o.id='touchOverlay';o.innerHTML='<button class="touchBtn tu" data-key="ArrowUp">▲</button><button class="touchBtn td" data-key="ArrowDown">▼</button><button class="touchBtn tl" data-key="ArrowLeft">◀</button><button class="touchBtn tr" data-key="ArrowRight">▶</button><button class="touchBtn ta" data-key="z">A</button><button class="touchBtn tb" data-key="x">B</button><button class="touchBtn tlb" data-key="q">L</button><button class="touchBtn trb" data-key="w">R</button>';document.getElementById('game').appendChild(o);o.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();window.dispatchEvent(new KeyboardEvent('keydown',{key:k,code:k.startsWith('Arrow')?k:k.toUpperCase(),bubbles:true}))});b.addEventListener('pointerup',e=>{e.preventDefault();window.dispatchEvent(new KeyboardEvent('keyup',{key:k,code:k.startsWith('Arrow')?k:k.toUpperCase(),bubbles:true}))})})}\n
+function setStatus(message){ statusEl.textContent=message; }
+function createTouchOverlay(){if(document.getElementById('touchOverlay'))return;const o=document.createElement('div');o.id='touchOverlay';o.innerHTML='<button class="touchBtn tu" data-key="ArrowUp">▲</button><button class="touchBtn td" data-key="ArrowDown">▼</button><button class="touchBtn tl" data-key="ArrowLeft">◀</button><button class="touchBtn tr" data-key="ArrowRight">▶</button><button class="touchBtn ta" data-key="z">A</button><button class="touchBtn tb" data-key="x">B</button><button class="touchBtn tlb" data-key="q">L</button><button class="touchBtn trb" data-key="w">R</button>';document.getElementById('game').appendChild(o);o.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();window.dispatchEvent(new KeyboardEvent('keydown',{key:k,code:k.startsWith('Arrow')?k:k.toUpperCase(),bubbles:true}))});b.addEventListener('pointerup',e=>{e.preventDefault();window.dispatchEvent(new KeyboardEvent('keyup',{key:k,code:k.startsWith('Arrow')?k:k.toUpperCase(),bubbles:true}))})})}
+
 
 input.addEventListener('change', async ()=>{
   const file=input.files && input.files[0];
