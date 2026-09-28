@@ -66,15 +66,12 @@ input.addEventListener('change', async ()=>{
     window.EJS_core='gba';
     window.EJS_controlScheme='gba';
     window.EJS_browserMode='mobile';
-    window.EJS_biosUrl='';
-    window.EJS_gameUrl=romBlob;
+    window.EJS_gameUrl=romBlobUrl;
     window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.3/data/';
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/latest/data/';
     window.EJS_startOnLoaded=true;
     window.EJS_askBeforeExit=false;
     window.EJS_forceLegacyCores=false;
-    window.EJS_disableAutoLang=true;
-    window.EJS_DEBUG_XX=true;
 
     // Keep the keyboard mapping explicit. The on-screen controls are now
     // provided by EmulatorJS's built-in GBA scheme instead of custom
