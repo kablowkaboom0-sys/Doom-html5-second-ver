@@ -13,9 +13,7 @@ main{width:min(1100px,100%);margin:auto;padding:18px}.panel{background:#10151f;b
 button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:600}
 #status{font-size:13px;color:#aeb9c9}#game{width:100%;height:min(78vh,720px);min-height:480px;background:#000;border-radius:10px;overflow:hidden}
 .hint{margin-top:12px;color:#8f9bad;font-size:12px;line-height:1.5}
-
-#touchOverlay{position:absolute;inset:0;z-index:99999;pointer-events:none}.touchBtn{position:absolute;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;background:rgba(30,30,35,.82);color:#fff;border:2px solid rgba(255,255,255,.7);font:bold 20px sans-serif;border-radius:14px;width:58px;height:58px}.tu{left:58px;bottom:122px}.td{left:58px;bottom:8px}.tl{left:0;bottom:66px}.tr{left:116px;bottom:66px}.ta{right:18px;bottom:30px;width:72px;height:72px;border-radius:50%}.tb{right:104px;bottom:76px;border-radius:50%}.tlb{left:18px;top:12px}.trb{right:18px;top:12px}
-</style>
+\n#touchOverlay{position:absolute;inset:0;z-index:99999;pointer-events:none}.touchBtn{position:absolute;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;background:rgba(30,30,35,.82);color:#fff;border:2px solid rgba(255,255,255,.7);font:bold 20px sans-serif;border-radius:14px;width:58px;height:58px}.tu{left:58px;bottom:122px}.td{left:58px;bottom:8px}.tl{left:0;bottom:66px}.tr{left:116px;bottom:66px}.ta{right:18px;bottom:30px;width:72px;height:72px;border-radius:50%}.tb{right:104px;bottom:76px;border-radius:50%}.tlb{left:18px;top:12px}.trb{right:18px;top:12px}\n</style>
 </head>
 <body>
 <header><h1>GBA Web Player</h1><p class="sub">Browser-based Game Boy Advance emulator</p></header>
@@ -26,7 +24,7 @@ button,.file-label{border:1px solid #3a4659;background:#182131;color:#fff;border
 <button id="fullscreen" type="button">Fullscreen</button>
 <span id="status">Choose the GBA file to start.</span>
 </div>
-<div id="game"></div><pre id="debug" style="white-space:pre-wrap;color:#ffb4b4;font:12px monospace;margin-top:10px"></pre>
+<div id="game"></div>
 <div class="hint">
 <strong>Keyboard:</strong> D-pad = Arrow Keys · A = Z · B = X · L = Q · R = W · Start = Enter · Select = Shift.<br>
 <strong>Touch:</strong> Uses EmulatorJS's native GBA control scheme on mobile.<br>
@@ -39,8 +37,7 @@ const input=document.getElementById('rom');
 const statusEl=document.getElementById('status');
 let romBlobUrl=null;
 
-function setStatus(message){ statusEl.textContent=message; }\nfunction debug(message){const d=document.getElementById('debug');if(d)d.textContent+=message+'\\n';}\nwindow.addEventListener('error',e=>debug('JS ERROR: '+(e.message||e.error||'unknown')+' @ '+(e.filename||'')+':'+(e.lineno||'')));\nwindow.addEventListener('unhandledrejection',e=>debug('PROMISE ERROR: '+(e.reason&&e.reason.stack||e.reason||'unknown')));
-function createTouchOverlay(){if(document.getElementById('touchOverlay'))return;const o=document.createElement('div');o.id='touchOverlay';o.innerHTML='<button class="touchBtn tu" data-key="ArrowUp">▲</button><button class="touchBtn td" data-key="ArrowDown">▼</button><button class="touchBtn tl" data-key="ArrowLeft">◀</button><button class="touchBtn tr" data-key="ArrowRight">▶</button><button class="touchBtn ta" data-key="z">A</button><button class="touchBtn tb" data-key="x">B</button><button class="touchBtn tlb" data-key="q">L</button><button class="touchBtn trb" data-key="w">R</button>';document.getElementById('game').appendChild(o);o.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;const send=(type,e)=>{e.preventDefault();window.dispatchEvent(new KeyboardEvent(type,{key:k,code:k.startsWith('Arrow')?k:k.toUpperCase(),bubbles:true}));};b.addEventListener('pointerdown',e=>send('keydown',e));b.addEventListener('pointerup',e=>send('keyup',e));b.addEventListener('pointercancel',e=>send('keyup',e));});}
+function setStatus(message){ statusEl.textContent=message; }\nfunction createTouchOverlay(){if(document.getElementById('touchOverlay'))return;const o=document.createElement('div');o.id='touchOverlay';o.innerHTML='<button class="touchBtn tu" data-key="ArrowUp">▲</button><button class="touchBtn td" data-key="ArrowDown">▼</button><button class="touchBtn tl" data-key="ArrowLeft">◀</button><button class="touchBtn tr" data-key="ArrowRight">▶</button><button class="touchBtn ta" data-key="z">A</button><button class="touchBtn tb" data-key="x">B</button><button class="touchBtn tlb" data-key="q">L</button><button class="touchBtn trb" data-key="w">R</button>';document.getElementById('game').appendChild(o);o.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();window.dispatchEvent(new KeyboardEvent('keydown',{key:k,code:k.startsWith('Arrow')?k:k.toUpperCase(),bubbles:true}))});b.addEventListener('pointerup',e=>{e.preventDefault();window.dispatchEvent(new KeyboardEvent('keyup',{key:k,code:k.startsWith('Arrow')?k:k.toUpperCase(),bubbles:true}))})})}\n
 
 input.addEventListener('change', async ()=>{
   const file=input.files && input.files[0];
@@ -56,7 +53,6 @@ input.addEventListener('change', async ()=>{
   try{
     const buffer=await file.arrayBuffer();
     const romBlob=new Blob([buffer],{type:'application/octet-stream'});
-    
 
     if(romBlobUrl) URL.revokeObjectURL(romBlobUrl);
     romBlobUrl=URL.createObjectURL(romBlob);
@@ -64,11 +60,9 @@ input.addEventListener('change', async ()=>{
     document.getElementById('game').innerHTML='';
 
     window.EJS_player='#game';
-    window.EJS_core='mgba';
+    window.EJS_core='gba';
     window.EJS_controlScheme='gba';
     window.EJS_browserMode='mobile';
-    window.EJS_DEBUG_XX=true;
-    window.EJS_biosUrl='';
     window.EJS_gameUrl=romBlobUrl;
     window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
     window.EJS_pathtodata='https://cdn.emulatorjs.org/latest/data/';
@@ -79,7 +73,22 @@ input.addEventListener('change', async ()=>{
     // Keep the keyboard mapping explicit. The on-screen controls are now
     // provided by EmulatorJS's built-in GBA scheme instead of custom
     // positioning, which avoids the misplaced touch buttons seen on mobile.
-    
+    window.EJS_defaultControls={
+      0:{
+        0:{value:'x',value2:'BUTTON_2'},
+        1:{value:'s',value2:'BUTTON_4'},
+        2:{value:'shift',value2:'SELECT'},
+        3:{value:'enter',value2:'START'},
+        4:{value:'up arrow',value2:'DPAD_UP'},
+        5:{value:'down arrow',value2:'DPAD_DOWN'},
+        6:{value:'left arrow',value2:'DPAD_LEFT'},
+        7:{value:'right arrow',value2:'DPAD_RIGHT'},
+        8:{value:'z',value2:'BUTTON_1'},
+        9:{value:'a',value2:'BUTTON_3'},
+        10:{value:'q',value2:'BUTTON_5'},
+        11:{value:'w',value2:'BUTTON_6'}
+      }
+    };
 
     // Do not define EJS_VirtualGamepadSettings here.
     // EmulatorJS will use its native GBA touch layout.
@@ -91,11 +100,11 @@ input.addEventListener('change', async ()=>{
     loader.src='https://cdn.emulatorjs.org/latest/data/loader.js';
     loader.dataset.ejsLoader='true';
 
-    loader.onload=()=>{debug('EmulatorJS loader loaded.');setTimeout(createTouchOverlay,1200);
+    loader.onload=()=>{
       setStatus('Emulator loaded. Starting game…');
     };
 
-    loader.onerror=()=>{debug('EmulatorJS loader network error.');
+    loader.onerror=()=>{
       setStatus('EmulatorJS failed to load. Check your internet connection.');
     };
 
