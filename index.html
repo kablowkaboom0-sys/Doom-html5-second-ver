@@ -62,13 +62,15 @@ input.addEventListener('change', async () => {
     window.EJS_biosUrl='';
     window.EJS_gameUrl=romUrl;
     window.EJS_core='gba';
-    window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.2/data/';
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/4.2.0/data/';
     window.EJS_startOnLoaded=true;
     window.EJS_askBeforeExit=false;
     window.EJS_threads=false;
     window.EJS_DEBUG_XX=false;
 
     window.EJS_controlScheme='gba';
+    window.EJS_startOnLoaded=true;
+    window.EJS_hideSettings=true;
     window.EJS_browserMode='mobile';
 
     window.EJS_defaultControls={
@@ -95,7 +97,7 @@ input.addEventListener('change', async () => {
     if(oldLoader) oldLoader.remove();
 
     const loader=document.createElement('script');
-    loader.src='https://cdn.emulatorjs.org/4.2.2/data/loader.js';
+    loader.src='https://cdn.emulatorjs.org/4.2.0/data/loader.js';
     loader.dataset.ejsLoader='true';
     loader.onload=()=>setStatus('Emulator loaded. Starting game…');
     loader.onerror=()=>setStatus('Could not load EmulatorJS. Please check the connection.');
